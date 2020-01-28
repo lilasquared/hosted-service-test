@@ -1,26 +1,24 @@
 ﻿using HostedService.Data.Models;
-using Lamar.Microsoft.DependencyInjection;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
-using System.Data.SqlClient;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
+using HostedService.Services;
+using MediatR;
 
 namespace HostedService
 {
     public class Program
     {
-        public static async Task Main(string[] args)
+        public static async Task Main(String[] args)
         {
             try
             {
                 var host = new HostBuilder()
-                    .UseLamar<LamarRegistry>()
                     .ConfigureHostConfiguration(configHost =>
                     {
                         configHost.SetBasePath(Directory.GetCurrentDirectory());
@@ -36,20 +34,10 @@ namespace HostedService
                     })
                     .ConfigureServices((hostContext, services) =>
                     {
-                        var conn = hostContext.Configuration["DB_CONN"];
-                        var dbPassword = hostContext.Configuration["DB_PASSWORD"];
-
-                        var builder = new SqlConnectionStringBuilder(conn)
-                        {
-                            Password = dbPassword
-                        };
-
-                        services.AddDbContext<ContosoContext>(ctx => ctx.UseSqlServer(builder.ConnectionString), ServiceLifetime.Transient);
-
-                        // MediatR
-                        services.AddMediatR(cfg => cfg.AsTransient(), Assembly.GetExecutingAssembly());
-                        services.AddHostedService<ServiceWorker>();
+                        services.AddDbContext<ContosoContext>(ctx => ctx.UseInMemoryDatabase("Contoso"));
                     })
+                    //.UseLamar(new LamarRegistry())
+                    .UseMicrosoft()
                     .UseConsoleLifetime()
                     .Build();
 
@@ -57,8 +45,23 @@ namespace HostedService
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"CRITICAL - Task Main():{ex.ToString()}");
+                Console.WriteLine($"CRITICAL - Task Main():{ex}");
             }
+        }
+    }
+
+    public static class ServiceCollectionExtensions
+    {
+        public static IHostBuilder UseMicrosoft(this IHostBuilder builder)
+        {
+            return builder.ConfigureServices((hostContext, services) =>
+            {
+                services.AddMediatR(Assembly.GetExecutingAssembly());
+
+                services.AddScoped<Service1>();
+                services.AddScoped<Service2>();
+                services.AddHostedService<ServiceWorker>();
+            });
         }
     }
 }

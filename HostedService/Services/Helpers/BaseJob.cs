@@ -1,12 +1,14 @@
-﻿using HostedService.Data.Models;
-using MediatR;
-using Microsoft.Extensions.DependencyInjection;
+﻿using MediatR;
 
 namespace HostedService.Services
 {
     public abstract class BaseJob
     {
-        //public ContosoContext _db { get; set; }
-        public IMediator _mediator { get; set; }
+        public IMediator Mediator { get; }
+
+        public BaseJob(IMediator mediator)
+        {
+            Mediator = mediator;
+        }
     }
 }

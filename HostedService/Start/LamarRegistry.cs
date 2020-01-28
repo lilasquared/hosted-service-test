@@ -14,7 +14,7 @@ namespace HostedService
         {
             Scan(_ =>
             {
-                _.WithDefaultConventions();
+                _.WithDefaultConventions(ServiceLifetime.Scoped);
                 _.TheCallingAssembly();
                 _.AssemblyContainingType<ContosoContext>();
 
@@ -24,10 +24,12 @@ namespace HostedService
                 _.ConnectImplementationsToTypesClosing(typeof(INotificationHandler<>));
             });
 
-            For<ContosoContext>().Use<ContosoContext>().Transient();
+            For<IHostedService>().Use<ServiceWorker>().Singleton();
+            For<ContosoContext>().Use<ContosoContext>().Scoped();
 
             // MediatR
-            For<IMediator>().Use<Mediator>().Transient();
+            For<ServiceFactory>().Use(x => x.GetInstance);
+            For<IMediator>().Use<Mediator>().Scoped();
 
             Policies.SetAllProperties(y => y.OfType<ContosoContext>());
             Policies.SetAllProperties(y => y.OfType<IHostEnvironment>());
