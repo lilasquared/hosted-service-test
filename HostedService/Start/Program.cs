@@ -5,10 +5,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.IO;
-using System.Reflection;
 using System.Threading.Tasks;
 using HostedService.Services;
-using MediatR;
+using Lamar.Microsoft.DependencyInjection;
 
 namespace HostedService
 {
@@ -36,8 +35,8 @@ namespace HostedService
                     {
                         services.AddDbContext<ContosoContext>(ctx => ctx.UseInMemoryDatabase("Contoso"));
                     })
-                    //.UseLamar(new LamarRegistry())
-                    .UseMicrosoft()
+                    .UseLamar(new LamarRegistry())
+                    //.UseMicrosoft()
                     .UseConsoleLifetime()
                     .Build();
 
@@ -56,8 +55,6 @@ namespace HostedService
         {
             return builder.ConfigureServices((hostContext, services) =>
             {
-                services.AddMediatR(Assembly.GetExecutingAssembly());
-
                 services.AddScoped<Service1>();
                 services.AddScoped<Service2>();
                 services.AddHostedService<ServiceWorker>();

@@ -1,14 +1,14 @@
-﻿using MediatR;
+﻿using HostedService.Data.Models;
 
 namespace HostedService.Services
 {
     public abstract class BaseJob
     {
-        public IMediator Mediator { get; }
+        public ContosoContext Context { get; }
 
-        public BaseJob(IMediator mediator)
+        public BaseJob(ContosoContext context)
         {
-            Mediator = mediator;
+            Context = context;
         }
     }
 }

@@ -1,9 +1,9 @@
-﻿using HostedService.Handlers;
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
+using HostedService.Data.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace HostedService.Services
 {
@@ -11,14 +11,14 @@ namespace HostedService.Services
     {
         public async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            var items = await Mediator.Send(new GetCourses(), cancellationToken);
+            var items = await Context.Courses.ToListAsync(cancellationToken);
 
             Console.WriteLine($"Hello from {GetType().Name}, ItemCount: {items.Count()}");
 
             await Task.Delay(TimeSpan.FromMilliseconds(100), cancellationToken);
         }
 
-        public Service1(IMediator mediator) : base(mediator)
+        public Service1(ContosoContext context) : base(context)
         {
         }
     }
