@@ -8,6 +8,7 @@ using System.IO;
 using System.Threading.Tasks;
 using HostedService.Services;
 using Lamar.Microsoft.DependencyInjection;
+using StructureMap;
 
 namespace HostedService
 {
@@ -34,9 +35,11 @@ namespace HostedService
                     .ConfigureServices((hostContext, services) =>
                     {
                         services.AddDbContext<ContosoContext>(ctx => ctx.UseInMemoryDatabase("Contoso"));
+                        services.AddHostedService<ServiceWorker>();
                     })
                     .UseLamar(new LamarRegistry())
                     //.UseMicrosoft()
+                    //.UseStructureMap()
                     .UseConsoleLifetime()
                     .Build();
 
@@ -57,8 +60,12 @@ namespace HostedService
             {
                 services.AddScoped<Service1>();
                 services.AddScoped<Service2>();
-                services.AddHostedService<ServiceWorker>();
             });
+        }
+
+        public static IHostBuilder UseStructureMap(this IHostBuilder builder)
+        {
+            return builder.UseServiceProviderFactory(new StructureMapContainerFactory(new Container(new StructureMapRegistry())));
         }
     }
 }
